@@ -6,8 +6,8 @@ from sqlalchemy import create_engine
 # -----------------------
 # 1. Database connection
 # -----------------------
-db_user = "postgres"
-db_password =""   # <-- change this
+db_user = "postgre"
+db_password ="glpostgre"   # <-- change this
 db_host = "localhost"
 db_port = "5432"
 db_name = "sample_db"
@@ -20,12 +20,12 @@ engine = create_engine(f"postgresql://{db_user}:{db_password}@{db_host}:{db_port
 
 # List of CSV files to process (update paths as needed)
 files = [
-    "/Users/dishatp/Desktop/database/CentralReport12-13.csv",
-    "/Users/dishatp/Desktop/database/CentralReport16-17.csv",
-    "/Users/dishatp/Desktop/database/CentralReport19-20.csv",
-    "/Users/dishatp/Desktop/database/CentralReport21-22.csv",
-    "/Users/dishatp/Desktop/database/CentralReport22-23.csv",
-    "/Users/dishatp/Desktop/database/CentralReport23-24.csv"
+    "C:\\Users\\Admin\\Zero1\\CentralReport12-13.csv",
+    "C:\\Users\\Admin\\Zero1\\CentralReport16-17.csv",
+    "C:\\Users\\Admin\\Zero1\\CentralReport19-20.csv",
+    "C:\\Users\\Admin\\Zero1\\CentralReport21-22.csv",
+    "C:\\Users\\Admin\\Zero1\\CentralReport22-23.csv",
+    "C:\\Users\\Admin\\Zero1\\CentralReport23-24.csv"
 ]
 
 print("Found files:", files)
