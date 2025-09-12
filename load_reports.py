@@ -1,6 +1,4 @@
 import pandas as pd
-import glob
-import os
 from sqlalchemy import create_engine
 
 # -----------------------
@@ -30,23 +28,34 @@ files = [
 
 print("Found files:", files)
 
-if not files:
-    print("No CSV files found. Please check the file paths.")
-    exit(1)
-
 dfs = []
-
 for file in files:
     print(f"Processing {file} ...")
-
-    # Read CSV, skip first 5 metadata rows
-    df = pd.read_csv(file, skiprows=5)
-
-    # Extract year info from filename
-    filename = os.path.basename(file)
-    year = filename.replace("CentralReport", "").replace(".csv", "")
-    df["report_year"] = year
-
+    # Read first 3 header rows
+    header_rows = pd.read_csv(file, header=None, nrows=3, skiprows=7)
+    # Read the actual data
+    df = pd.read_csv(file, header=None, skiprows=10)
+    # Combine headers and make unique column names
+    columns = []
+    for col in range(df.shape[1]):
+        h1 = str(header_rows.iloc[0, col]) if not pd.isna(header_rows.iloc[0, col]) else ""
+        h2 = str(header_rows.iloc[1, col]) if not pd.isna(header_rows.iloc[1, col]) else ""
+        h3 = str(header_rows.iloc[2, col]) if not pd.isna(header_rows.iloc[2, col]) else ""
+        # Combine all header levels, separated by underscores
+        col_name = "_".join([h for h in [h1, h2, h3] if h])
+        # If still empty, use generic name
+        columns.append(col_name if col_name else f"col_{col}")
+    # Ensure column names are unique
+    seen = {}
+    unique_columns = []
+    for name in columns:
+        if name in seen:
+            seen[name] += 1
+            unique_columns.append(f"{name}_{seen[name]}")
+        else:
+            seen[name] = 1
+            unique_columns.append(name)
+    df.columns = unique_columns
     dfs.append(df)
 
 # -----------------------
@@ -55,6 +64,7 @@ for file in files:
 all_reports = pd.concat(dfs, ignore_index=True)
 
 print("Combined dataframe shape:", all_reports.shape)
+print("Columns:", all_reports.columns.tolist())
 
 # -----------------------
 # 4. Auto-create table in PostGIS
@@ -65,5 +75,5 @@ table_name = "reports"
 
 all_reports.to_sql(table_name, engine, if_exists="replace", index=False)
 
-print(f"✅ Data successfully loaded into PostGIS table '{table_name}'")
+print(f"✅ Data successfully loaded into table '{table_name}' with unique column names.")
 
